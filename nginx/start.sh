@@ -19,6 +19,7 @@ docker run -d \
   -p 8080:80 \
   -v "$PWD/conf.d":/etc/nginx/conf.d:ro \
   -v "$PWD/html":/var/www/html:ro \
+  --network=host \
   nginx:alpine
 
 echo "✅ Container '${LABEL}' is now running at http://localhost:8080"
