@@ -17,9 +17,8 @@ echo "🚀 Running new container: ${LABEL}"
 docker run -d \
   --name "${LABEL}" \
   -p 8080:80 \
-  -v "$PWD/nginx.conf":/etc/nginx/nginx.conf:ro \
-  -v "$PWD/domains":/etc/nginx/conf.d/domains:ro \
-  -v "$PWD/index.html":/var/www/html/index.html:ro \
+  -v "$PWD/configs":/etc/nginx:ro \
+  -v "$PWD/html":/var/www/html:ro \
   nginx:alpine
 
 echo "✅ Container '${LABEL}' is now running at http://localhost:8080"
