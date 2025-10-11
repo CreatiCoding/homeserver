@@ -14,10 +14,10 @@ fi
 # 새 컨테이너 실행
 echo "🚀 Running new container: ${LABEL}"
 
-docker run -d \
+docker run \
   --name "${LABEL}" \
   -p 8080:80 \
-  -v "$PWD/configs":/etc/nginx:ro \
+  -v "$PWD/conf.d":/etc/nginx/conf.d:ro \
   -v "$PWD/html":/var/www/html:ro \
   nginx:alpine
 
