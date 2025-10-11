@@ -14,7 +14,7 @@ fi
 # 새 컨테이너 실행
 echo "🚀 Running new container: ${LABEL}"
 
-docker run \
+docker run -d \
   --name "${LABEL}" \
   -p 8080:80 \
   -v "$PWD/conf.d":/etc/nginx/conf.d:ro \
