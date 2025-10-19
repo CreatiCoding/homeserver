@@ -6,6 +6,8 @@ ENV PORT=${PORT}
 
 WORKDIR /app
 
+RUN apk add bash
+
 COPY . .
 
 RUN corepack enable
