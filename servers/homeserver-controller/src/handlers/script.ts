@@ -3,14 +3,17 @@ import execa from "execa";
 import path from "path";
 import fs from "fs";
 
-const HOMESERVER_TOKEN = process.env.HOMESERVER_TOKEN;
-
 export const scriptHandler = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
   const { name } = request.body as { name: string };
   const Authorization = request.headers.authorization;
+  const HOMESERVER_TOKEN = process.env.HOMESERVER_TOKEN ?? "";
+
+  if (HOMESERVER_TOKEN === "") {
+    return reply.status(403).send({ message: "Unauthorized" });
+  }
 
   if (Authorization !== `Bearer ${HOMESERVER_TOKEN}`) {
     return reply.status(403).send({ message: "Unauthorized" });
