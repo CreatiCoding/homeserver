@@ -1,0 +1,14 @@
+{
+  "name": "homeserver",
+  "packageManager": "yarn@4.10.3",
+  "scripts": {
+    "deploy:homeserver-controller": "./servers/homeserver-controller/restart.sh"
+  },
+  "workspaces": [
+    "servers/*",
+    "nginx"
+  ],
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
