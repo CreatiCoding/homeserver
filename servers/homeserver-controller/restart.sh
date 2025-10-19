@@ -2,6 +2,11 @@
 
 set -e
 
+# if bashrc is exists, source it
+if [ -f ~/.bashrc ]; then
+  source ~/.bashrc
+fi
+
 # 현재 시각 기반의 postfix 생성 (예: homeserver-controller-20251011-153012)
 LABEL="homeserver-controller-$(date +%Y%m%d-%H%M%S)"
 REGEX_LABEL="homeserver-controller-[0-9]{8}-[0-9]{6}"
