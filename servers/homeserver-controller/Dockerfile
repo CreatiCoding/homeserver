@@ -12,7 +12,7 @@ RUN apk add bash
 
 COPY . .
 
-RUN cp ~/.ssh/ci_id_rsa /app/ci_id_rsa
+RUN cp /Users/creco/.ssh/ci_id_rsa /app/ci_id_rsa
 
 RUN corepack enable
 
