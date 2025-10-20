@@ -1,0 +1,20 @@
+{
+    "huoguo-pick-server": {
+        "name": "huoguo-pick-server",
+        "port": 4001,
+        "cwd": "/Users/creco/workspaces/hougou-pick",
+        "dockerfile": "./backend/Dockerfile"
+    },
+    "huoguo-pick-frontend": {
+        "name": "huoguo-pick-frontend",
+        "port": 4002,
+        "cwd": "/Users/creco/workspaces/hougou-pick",
+        "dockerfile": "./frontend/Dockerfile"
+    },
+    "homeserver-controller": {
+        "name": "homeserver-controller",
+        "port": 4000,
+        "cwd": "/Users/creco/workspaces/homeserver",
+        "dockerfile": "./servers/homeserver-controller/Dockerfile"
+    }
+}

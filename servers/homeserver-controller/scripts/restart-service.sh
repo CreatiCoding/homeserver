@@ -4,16 +4,11 @@ set -e
 
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
-# huoguo-pick-backend
-SERVICE_NAME=$1
-# 4001
-PORT=$2
-# /Users/creco/workspaces/hougou-pick
-CWD_PATH=$3
-# ./backend/Dockerfile
-DOCKERFILE_PATH=$4
+SERVICE_NAME=$(node -p "require('./services.json')['$1'].name")
+PORT=$(node -p "require('./services.json')['$1'].port")
+CWD_PATH=$(node -p "require('./services.json')['$1'].cwd")
+DOCKERFILE_PATH=$(node -p "require('./services.json')['$1'].dockerfile")
 
-# 현재 시각 기반의 postfix 생성 (예: $SERVICE_NAME-20251011-153012)
 LABEL="$SERVICE_NAME-$(date +%Y%m%d-%H%M%S)"
 REGEX_LABEL="$SERVICE_NAME-[0-9]{8}-[0-9]{6}"
 
