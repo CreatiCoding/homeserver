@@ -2,7 +2,7 @@
 
 set -e
 
-export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+source /etc/zprofile
 
 SERVICE_NAME=$(node -p "require('./services.json')['$1'].name")
 PORT=$(node -p "require('./services.json')['$1'].port")
