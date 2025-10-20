@@ -9,6 +9,7 @@ ENV KEY_PATH=/app/ci_id_rsa
 WORKDIR /app
 
 RUN apk add bash
+RUN apk add openssh
 
 COPY . .
 
