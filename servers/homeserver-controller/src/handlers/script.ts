@@ -23,9 +23,11 @@ export const scriptHandler = async (
 
   console.log(`스크립트: ${name}`);
 
+  const KEY_PATH = process.env.KEY_PATH || "~/.ssh/ci_id_rsa";
+
   const result = await execa(
     "ssh",
-    ["-i", "~/.ssh/ci_id_rsa", "creaticoding.iptime.org", "bash", scriptPath],
+    ["-i", KEY_PATH, "creaticoding.iptime.org", "bash", scriptPath],
     { cwd }
   );
 

@@ -4,13 +4,15 @@ ARG PORT
 
 ENV PORT=${PORT}
 
+ENV KEY_PATH=/app/ci_id_rsa
+
 WORKDIR /app
 
 RUN apk add bash
 
 COPY . .
 
-RUN cp ~/.ssh/ci_id_rsa ~/.ssh/ci_id_rsa
+RUN cp ~/.ssh/ci_id_rsa /app/ci_id_rsa
 
 RUN corepack enable
 
