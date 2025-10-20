@@ -25,7 +25,7 @@ export const scriptHandler = async (
 
   const KEY_PATH = process.env.KEY_PATH || "~/.ssh/ci_id_rsa";
 
-  const result = await execa(
+  const result = execa(
     "ssh",
     [
       "-i",
@@ -42,9 +42,10 @@ export const scriptHandler = async (
 
   reply.status(200).send({ message: "OK", data: { name } });
 
-  console.log(result.stdout);
+  const awaitedResult = await result;
+  console.log(awaitedResult.stdout);
 
-  if (result.stderr) {
-    console.log(result.stderr);
+  if (awaitedResult.stderr) {
+    console.log(awaitedResult.stderr);
   }
 };
