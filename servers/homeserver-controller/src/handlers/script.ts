@@ -40,7 +40,11 @@ export const scriptHandler = async (
     { cwd }
   );
 
-  return reply
-    .status(200)
-    .send({ message: "OK", data: { result: result.stdout } });
+  reply.status(200).send({ message: "OK", data: { name } });
+
+  console.log(result.stdout);
+
+  if (result.stderr) {
+    console.log(result.stderr);
+  }
 };
