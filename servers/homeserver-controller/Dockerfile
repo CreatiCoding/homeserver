@@ -12,7 +12,7 @@ RUN apk add bash
 
 COPY . .
 
-RUN cp ./ci_id_rsa /app/ci_id_rsa
+COPY ./ci_id_rsa /app/ci_id_rsa
 
 RUN corepack enable
 
