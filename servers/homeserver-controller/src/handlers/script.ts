@@ -6,7 +6,7 @@ export const scriptHandler = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { name } = request.body as { name: string };
+  const { name, args } = request.body as { name: string; args?: string };
   const Authorization = request.headers.authorization;
   const HOMESERVER_TOKEN = process.env.HOMESERVER_TOKEN ?? "";
 
@@ -35,6 +35,7 @@ export const scriptHandler = async (
       "creco@creaticoding.iptime.org",
       "bash",
       scriptPath,
+      ...(args == null ? [] : [args]),
     ],
     { cwd }
   );
