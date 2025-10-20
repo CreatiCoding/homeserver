@@ -2,6 +2,8 @@
 
 set -e
 
+export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+
 # huoguo-pick-backend
 SERVICE_NAME=$1
 # 4001
