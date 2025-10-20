@@ -25,7 +25,7 @@ export const scriptHandler = async (
 
   const KEY_PATH = process.env.KEY_PATH || "~/.ssh/ci_id_rsa";
 
-  const result = execa(
+  const subprocess = execa(
     "ssh",
     [
       "-i",
@@ -37,15 +37,10 @@ export const scriptHandler = async (
       scriptPath,
       ...(args == null ? [] : [args]),
     ],
-    { cwd }
+    { cwd, stdio: "inherit" }
   );
 
   reply.status(200).send({ message: "OK", data: { name } });
 
-  const awaitedResult = await result;
-  console.log(awaitedResult.stdout);
-
-  if (awaitedResult.stderr) {
-    console.log(awaitedResult.stderr);
-  }
+  await subprocess;
 };
