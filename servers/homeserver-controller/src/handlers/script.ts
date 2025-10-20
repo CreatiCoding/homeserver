@@ -27,7 +27,15 @@ export const scriptHandler = async (
 
   const result = await execa(
     "ssh",
-    ["-i", KEY_PATH, "creco@creaticoding.iptime.org", "bash", scriptPath],
+    [
+      "-i",
+      KEY_PATH,
+      "-o",
+      "StrictHostKeyChecking=accept-new",
+      "creco@creaticoding.iptime.org",
+      "bash",
+      scriptPath,
+    ],
     { cwd }
   );
 
