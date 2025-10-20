@@ -35,6 +35,9 @@ fi
 echo "🚀 Running new container: ${LABEL}"
 
 cd $CWD_PATH
+
+git pull origin HEAD
+
 docker build --build-arg PORT=$PORT -t "${LABEL}" . -f $DOCKERFILE_PATH
 
 docker run -d \
