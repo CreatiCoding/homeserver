@@ -17,3 +17,5 @@ node_modules
 .pnp.*
 
 .env
+
+ci_id_rsa

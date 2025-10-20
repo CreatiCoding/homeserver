@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import execa from "execa";
 import path from "path";
-import fs from "fs";
 
 export const scriptHandler = async (
   request: FastifyRequest,
@@ -19,15 +18,18 @@ export const scriptHandler = async (
     return reply.status(403).send({ message: "Unauthorized" });
   }
 
-  const cwd = path.join(__dirname, "..", "..");
+  const cwd = path.join(__dirname, "..", "..", "..", "..");
+  const scriptPath = `/Users/creco/workspaces/homeserver/servers/homeserver-controller/scripts/${name}.sh`;
 
-  if (!fs.existsSync(path.join(cwd, `./scripts/${name}.sh`))) {
-    return reply.status(404).send({ message: "Not Found" });
-  }
+  console.log(`스크립트: ${name}`);
 
-  const script = await execa("bash", ["-c", `./scripts/${name}.sh`], { cwd });
+  const result = await execa(
+    "ssh",
+    ["-i", "~/.ssh/ci_id_rsa", "creaticoding.iptime.org", "bash", scriptPath],
+    { cwd }
+  );
 
   return reply
     .status(200)
-    .send({ message: "OK", data: { output: script.stdout } });
+    .send({ message: "OK", data: { result: result.stdout } });
 };

@@ -10,6 +10,8 @@ RUN apk add bash
 
 COPY . .
 
+RUN cp ~/.ssh/ci_id_rsa ~/.ssh/ci_id_rsa
+
 RUN corepack enable
 
 WORKDIR /app/servers/homeserver-controller
