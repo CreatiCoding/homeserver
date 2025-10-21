@@ -1,13 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
 source /etc/zprofile
 
-SERVICE_NAME=$(node -p "require('./services.json')['$1'].name")
-PORT=$(node -p "require('./services.json')['$1'].port")
-CWD_PATH=$(node -p "require('./services.json')['$1'].cwd")
-DOCKERFILE_PATH=$(node -p "require('./services.json')['$1'].dockerfile")
+SERVICES_JSON_PATH="./workspaces/homeserver/servers/homeserver-controller/services.json"
+
+SERVICE_NAME=$(node -p "require('$SERVICES_JSON_PATH')['$1'].name")
+PORT=$(node -p "require('$SERVICES_JSON_PATH')['$1'].port")
+CWD_PATH=$(node -p "require('$SERVICES_JSON_PATH')['$1'].cwd")
+DOCKERFILE_PATH=$(node -p "require('$SERVICES_JSON_PATH')['$1'].dockerfile")
 
 LABEL="$SERVICE_NAME-$(date +%Y%m%d-%H%M%S)"
 REGEX_LABEL="$SERVICE_NAME-[0-9]{8}-[0-9]{6}"
