@@ -10,6 +10,9 @@ SERVICE_NAME=$(node -p "require('$SERVICES_JSON_PATH')['$1'].name")
 PORT=$(node -p "require('$SERVICES_JSON_PATH')['$1'].port")
 CWD_PATH=$(node -p "require('$SERVICES_JSON_PATH')['$1'].cwd")
 DOCKERFILE_PATH=$(node -p "require('$SERVICES_JSON_PATH')['$1'].dockerfile")
+SERVICE_PATH=$(node -p "require('$SERVICES_JSON_PATH')['$1'].servicePath")
+CPUS=$(node -p "require('$SERVICES_JSON_PATH')['$1'].cpus")
+MEMORY=$(node -p "require('$SERVICES_JSON_PATH')['$1'].memory")
 
 LABEL="$SERVICE_NAME-$(date +%Y%m%d-%H%M%S)"
 REGEX_LABEL="$SERVICE_NAME-[0-9]{8}-[0-9]{6}"
@@ -35,11 +38,6 @@ cd $CWD_PATH
 
 git pull origin HEAD
 
-docker build --build-arg PORT=$PORT -t "${LABEL}" . -f $DOCKERFILE_PATH
+echo "✅ $SERVICE_PATH/restart.sh $LABEL $CPUS $MEMORY"
 
-docker run -d \
-  --name "${LABEL}" \
-  -p $PORT:$PORT \
-  "${LABEL}"
-
-echo "✅ Container '${LABEL}' is now running at http://localhost:$PORT"
+$SERVICE_PATH/restart.sh $LABEL $CPUS $MEMORY
