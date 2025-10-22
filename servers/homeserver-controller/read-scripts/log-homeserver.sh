@@ -2,4 +2,4 @@
 
 set -e
 
-docker logs -f $(docker ps --format '{{.Names}}' | grep homeserver-controller | head -n 1)
+docker logs --tail 1000 $(docker ps --format '{{.Names}}' | grep homeserver-controller | head -n 1)
