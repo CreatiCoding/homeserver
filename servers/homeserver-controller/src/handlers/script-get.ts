@@ -27,7 +27,7 @@ export const scriptGetHandler = async (
         "bash",
         scriptPath,
       ],
-      { cwd, stdio: "inherit" }
+      { cwd }
     );
 
     return reply.status(200).send(stdout);
