@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import { healthHandler } from "./handlers/health";
 import { scriptHandler } from "./handlers/script";
+import { scriptGetHandler } from "./handlers/script-get";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,6 +15,7 @@ async function main() {
   fastify.register(
     async function (router) {
       router.post("/script", scriptHandler);
+      router.get("/script/:name", scriptGetHandler);
       router.get("/health", healthHandler);
     },
     { prefix: apiPrefix }
