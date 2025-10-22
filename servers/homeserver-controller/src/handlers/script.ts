@@ -42,5 +42,10 @@ export const scriptHandler = async (
 
   reply.status(200).send({ message: "OK", data: { name } });
 
-  await subprocess;
+  try {
+    await subprocess;
+  } catch (error: any) {
+    console.log(error.message);
+    return;
+  }
 };

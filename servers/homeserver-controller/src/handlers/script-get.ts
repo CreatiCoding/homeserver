@@ -14,25 +14,26 @@ export const scriptGetHandler = async (
 
   console.log(`스크립트: ${name}`);
 
-  if (!fs.existsSync(scriptPath)) {
-    return reply.status(404).send("Not Found");
-  }
-
   const KEY_PATH = process.env.KEY_PATH || "~/.ssh/ci_id_rsa";
+  try {
+    const { stdout } = await execa(
+      "ssh",
+      [
+        "-i",
+        KEY_PATH,
+        "-o",
+        "StrictHostKeyChecking=accept-new",
+        "creco@creaticoding.iptime.org",
+        "bash",
+        scriptPath,
+      ],
+      { cwd, stdio: "inherit" }
+    );
 
-  const { stdout } = await execa(
-    "ssh",
-    [
-      "-i",
-      KEY_PATH,
-      "-o",
-      "StrictHostKeyChecking=accept-new",
-      "creco@creaticoding.iptime.org",
-      "bash",
-      scriptPath,
-    ],
-    { cwd, stdio: "inherit" }
-  );
-
-  reply.status(200).send(stdout);
+    return reply.status(200).send(stdout);
+  } catch (error: any) {
+    console.log(error.message);
+    reply.status(400).send(error.message);
+    return;
+  }
 };
