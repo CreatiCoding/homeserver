@@ -11,7 +11,7 @@
     "huoguo-pick-server": {
         "name": "huoguo-pick-server",
         "port": 4001,
-        "cwd": "/Users/creco/workspaces/hougou-pick",
+        "cwd": "/Users/creco/workspaces/huoguo-pick",
         "dockerfile": "./backend/Dockerfile",
         "servicePath": "./backend",
         "cpus": "1.5",
@@ -20,7 +20,7 @@
     "huoguo-pick-frontend": {
         "name": "huoguo-pick-frontend",
         "port": 4002,
-        "cwd": "/Users/creco/workspaces/hougou-pick",
+        "cwd": "/Users/creco/workspaces/huoguo-pick",
         "dockerfile": "./frontend/Dockerfile",
         "servicePath": "./frontend",
         "cpus": "1.5",
@@ -29,7 +29,7 @@
     "huoguo-pick-database": {
         "name": "huoguo-pick-database",
         "port": 4003,
-        "cwd": "/Users/creco/workspaces/hougou-pick",
+        "cwd": "/Users/creco/workspaces/huoguo-pick",
         "dockerfile": "./database/Dockerfile",
         "servicePath": "./database",
         "cpus": "1.5",
