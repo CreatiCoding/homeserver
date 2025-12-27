@@ -1,26 +1,77 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CFG="${1:-hello-world.yaml}"
+# -----------------------------
+# args / options
+# -----------------------------
+APP_OR_CFG="${1:-}"
+shift || true
+
+DOCKER_LOGIN=false
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --docker-login) DOCKER_LOGIN=true; shift ;;
+    *) echo "알 수 없는 옵션: $1"; exit 1 ;;
+  esac
+done
 
 need() {
-  command -v "$1" >/dev/null 2>&1 || {
-    echo "❌ 필수 명령어 없음: $1"
-    exit 1
-  }
+  command -v "$1" >/dev/null 2>&1 || { echo "❌ 필수 명령어 없음: $1"; exit 1; }
 }
 
 need yq
 need jq
 need curl
 need kubectl
-need docker
 need python3
+if $DOCKER_LOGIN; then
+  need docker
+fi
 
-echo "🔍 config 파일 로드: $CFG"
+# -----------------------------
+# config resolution
+# -----------------------------
+resolve_cfg() {
+  local input="$1"
 
+  # 1) 입력이 없으면 기본 hello-world.yaml
+  if [[ -z "$input" ]]; then
+    if [[ -f "hello-world.yaml" ]]; then
+      echo "hello-world.yaml"
+      return 0
+    fi
+    echo "❌ 입력이 없고, 기본 hello-world.yaml 도 찾지 못했습니다." >&2
+    exit 1
+  fi
+
+  # 2) 입력이 파일이면 그대로
+  if [[ -f "$input" ]]; then
+    echo "$input"
+    return 0
+  fi
+
+  # 3) 확장자 없이 들어오면 <name>.yaml 우선
+  if [[ -f "${input}.yaml" ]]; then
+    echo "${input}.yaml"
+    return 0
+  fi
+
+  # 4) services/<name>.yaml 도 시도
+  if [[ -f "services/${input}.yaml" ]]; then
+    echo "services/${input}.yaml"
+    return 0
+  fi
+
+  echo "❌ config 파일을 찾지 못했습니다: '$input' (또는 ${input}.yaml, services/${input}.yaml)" >&2
+  exit 1
+}
+
+CFG="$(resolve_cfg "$APP_OR_CFG")"
+
+# -----------------------------
+# read config
+# -----------------------------
 serviceName="$(yq -r '.serviceName' "$CFG")"
-
 registry="$(yq -r '.image.registry' "$CFG")"
 project="$(yq -r '.image.namespace' "$CFG")"
 host="$(yq -r '.domain.host' "$CFG")"
@@ -30,41 +81,39 @@ repository="$serviceName"
 
 containerPort="${CONTAINER_PORT:-3000}"
 
-# --------------------------------------------------
-# Harbor 인증 정보 (필수)
-# --------------------------------------------------
+# Harbor API/Secret 인증 정보 (필수)
 : "${HARBOR_USERNAME:?환경변수 HARBOR_USERNAME 필요 (robot 계정 권장)}"
 : "${HARBOR_PASSWORD:?환경변수 HARBOR_PASSWORD 필요}"
 
+echo "== 입력 =="
+echo "  cfg:           $CFG"
+echo "  serviceName:   $serviceName"
+echo "  image repo:    $registry/$project/$repository"
+echo "  host:          $host"
+echo "  namespace:     $ns"
+echo "  containerPort: $containerPort"
 echo
-echo "🔐 Harbor 로그인 시도: $registry"
-echo "$HARBOR_PASSWORD" | docker login "$registry" -u "$HARBOR_USERNAME" --password-stdin
-echo "✅ docker login 성공"
 
-# --------------------------------------------------
-# imagePullSecret 자동 생성/갱신
-# --------------------------------------------------
-echo
-echo "🔑 k8s imagePullSecret 생성/갱신"
+# 1) (선택) docker login
+if $DOCKER_LOGIN; then
+  echo "🔐 docker login 수행 (--docker-login)"
+  echo "$HARBOR_PASSWORD" | docker login "$registry" -u "$HARBOR_USERNAME" --password-stdin
+  echo "✅ docker login 완료"
+  echo
+fi
 
+# 2) namespace 멱등 생성
 kubectl create namespace "$ns" --dry-run=client -o yaml | kubectl apply -f -
 
-kubectl -n "$ns" delete secret harbor-pull --ignore-not-found
-
+# 3) imagePullSecret 멱등 apply (삭제/재생성 X)
 kubectl -n "$ns" create secret docker-registry harbor-pull \
   --docker-server="$registry" \
   --docker-username="$HARBOR_USERNAME" \
   --docker-password="$HARBOR_PASSWORD" \
-  --docker-email="nodejsdeveloper@kakao.com"
+  --docker-email="nodejsdeveloper@kakao.com" \
+  --dry-run=client -o yaml | kubectl apply -f -
 
-echo "✅ imagePullSecret 준비 완료"
-
-# --------------------------------------------------
-# Harbor API: 최신 tag 조회
-# --------------------------------------------------
-echo
-echo "🔍 Harbor 최신 tag 조회"
-
+# 4) 최신 tag 조회 (Harbor 상태가 변하면 바뀌는 건 의도된 동작)
 repoEnc="$(python3 - <<PY
 import urllib.parse
 print(urllib.parse.quote("${repository}", safe=""))
@@ -77,24 +126,17 @@ artifacts_json="$(
 )"
 
 latest_tag="$(echo "$artifacts_json" | jq -r '.[0].tags[0].name // empty')"
-
 if [[ -z "$latest_tag" ]]; then
-  echo "❌ 최신 tag 조회 실패"
+  echo "❌ 최신 tag 조회 실패 (tags 없음/권한/API 응답 확인 필요)"
   echo "$artifacts_json" | jq .
   exit 1
 fi
 
 image="${registry}/${project}/${repository}:${latest_tag}"
-
-echo "✅ 최신 이미지:"
-echo "   $image"
-
-# --------------------------------------------------
-# k8s 리소스 배포
-# --------------------------------------------------
+echo "✅ 최신 이미지: $image"
 echo
-echo "🚀 k3s 배포 시작"
 
+# 5) 배포 apply (멱등)
 cat <<YAML | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -116,7 +158,7 @@ spec:
       containers:
         - name: ${serviceName}
           image: ${image}
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: ${containerPort}
 ---
@@ -159,11 +201,6 @@ spec:
                   number: 80
 YAML
 
-echo
-echo "🎉 배포 완료!"
-echo
-echo "🔎 상태 확인:"
-echo "kubectl -n ${ns} get pod,svc,ingress"
-echo
-echo "🌍 접속 주소:"
-echo "https://${host}"
+echo "🎉 적용 완료"
+echo "상태 확인: kubectl -n ${ns} get deploy,po,svc,ingress"
+echo "접속: https://${host}"
