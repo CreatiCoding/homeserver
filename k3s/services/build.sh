@@ -9,7 +9,7 @@ if [[ -z "$SERVICE_NAME" ]]; then
   exit 1
 fi
 
-SERVICE_FILE="services/${SERVICE_NAME}.yaml"
+SERVICE_FILE="${SERVICE_NAME}.yaml"
 if [[ ! -f "$SERVICE_FILE" ]]; then
   echo "❌ 서비스 설정 파일이 없습니다: $SERVICE_FILE"
   exit 1
