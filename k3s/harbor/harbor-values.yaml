@@ -1,0 +1,31 @@
+externalURL: https://harbor.creco.dev
+
+expose:
+  type: ingress
+  ingress:
+    className: traefik
+    hosts:
+      core: harbor.creco.dev
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+
+harborAdminPassword: ""
+
+persistence:
+  enabled: true
+  persistentVolumeClaim:
+    registry:
+      size: 50Gi
+    database:
+      size: 5Gi
+    redis:
+      size: 1Gi
+    trivy:
+      size: 5Gi
+    jobservice:
+      size: 1Gi

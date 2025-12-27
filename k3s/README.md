@@ -260,3 +260,13 @@ sudo systemctl restart docker
 ```
 
 설정이 완료되면 Docker 서비스를 재시작하여 변경사항을 적용합니다.
+
+## [추가] helm 환경 구성하기
+
+```
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o get_helm.sh
+chmod 700 get_helm.sh
+./get_helm.sh
+
+helm version
+```
