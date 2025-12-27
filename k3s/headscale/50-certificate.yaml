@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: headscale-tls
   issuerRef:
-    name: letsencrypt
+    name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
     - headscale.creco.dev
