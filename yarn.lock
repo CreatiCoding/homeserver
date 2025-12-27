@@ -411,6 +411,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bun@npm:latest":
+  version: 1.3.5
+  resolution: "@types/bun@npm:1.3.5"
+  dependencies:
+    bun-types: "npm:1.3.5"
+  checksum: 10c0/ec3b364bcad3faeed6e5033f76c3618d4469719d04c5c4f31659953461c6b36509cf9befb05ad3c455f2584f64eff6ff636bca8a36590ae4184caf146ad86601
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:^1.0.6":
   version: 1.0.8
   resolution: "@types/estree@npm:1.0.8"
@@ -422,6 +431,15 @@ __metadata:
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
   checksum: 10c0/a996a745e6c5d60292f36731dd41341339d4eeed8180bb09226e5c8d23759067692b1d88e5d91d72ee83dfc00d3aca8e7bd43ea120516c17922cbcb7c3e252db
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:*":
+  version: 25.0.3
+  resolution: "@types/node@npm:25.0.3"
+  dependencies:
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/b7568f0d765d9469621615e2bb257c7fd1953d95e9acbdb58dffb6627a2c4150d405a4600aa1ad8a40182a94fe5f903cafd3c0a2f5132814debd0e3bfd61f835
   languageName: node
   linkType: hard
 
@@ -588,6 +606,15 @@ __metadata:
   dependencies:
     balanced-match: "npm:^1.0.0"
   checksum: 10c0/6d117a4c793488af86b83172deb6af143e94c17bc53b0b3cec259733923b4ca84679d506ac261f4ba3c7ed37c46018e2ff442f9ce453af8643ecd64f4a54e6cf
+  languageName: node
+  linkType: hard
+
+"bun-types@npm:1.3.5":
+  version: 1.3.5
+  resolution: "bun-types@npm:1.3.5"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/f46aa39af49cb7f06e101e57c10f80a33df3ddd162e3d22aee87f96923b5b5782dd6a2cf52ef475d84148e0a73a326a4e7df82b7457da5c142a52170c76bce92
   languageName: node
   linkType: hard
 
@@ -1239,6 +1266,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hello-world@workspace:servers/hello-world":
+  version: 0.0.0-use.local
+  resolution: "hello-world@workspace:servers/hello-world"
+  dependencies:
+    "@types/bun": "npm:latest"
+    hono: "npm:^4.11.3"
+  peerDependencies:
+    typescript: ^5
+  languageName: unknown
+  linkType: soft
+
 "homeserver-controller@workspace:servers/homeserver-controller":
   version: 0.0.0-use.local
   resolution: "homeserver-controller@workspace:servers/homeserver-controller"
@@ -1261,6 +1299,13 @@ __metadata:
     typescript: "npm:^5.9.3"
   languageName: unknown
   linkType: soft
+
+"hono@npm:^4.11.3":
+  version: 4.11.3
+  resolution: "hono@npm:4.11.3"
+  checksum: 10c0/9e68313b3329cab0d93633909c206073315b326aa05cf6f5596214cb6e3b9913c9b59650d46a86ec9e4865b4b195561289cca191623aa557a3c2380121ff39df
+  languageName: node
+  linkType: hard
 
 "http-cache-semantics@npm:^4.1.1":
   version: 4.2.0
@@ -2229,6 +2274,13 @@ __metadata:
   version: 6.21.0
   resolution: "undici-types@npm:6.21.0"
   checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.16.0":
+  version: 7.16.0
+  resolution: "undici-types@npm:7.16.0"
+  checksum: 10c0/3033e2f2b5c9f1504bdc5934646cb54e37ecaca0f9249c983f7b1fc2e87c6d18399ebb05dc7fd5419e02b2e915f734d872a65da2e3eeed1813951c427d33cc9a
   languageName: node
   linkType: hard
 
