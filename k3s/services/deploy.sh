@@ -8,9 +8,12 @@ APP_OR_CFG="${1:-}"
 shift || true
 
 DOCKER_LOGIN=false
+PAGE_SIZE=5
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --docker-login) DOCKER_LOGIN=true; shift ;;
+    --page-size) PAGE_SIZE="${2:-5}"; shift 2 ;;
     *) echo "알 수 없는 옵션: $1"; exit 1 ;;
   esac
 done
@@ -76,10 +79,12 @@ registry="$(yq -r '.image.registry' "$CFG")"
 project="$(yq -r '.image.namespace' "$CFG")"
 host="$(yq -r '.domain.host' "$CFG")"
 
+# ✅ build.port를 yaml에서 읽도록 수정
+containerPort_from_yaml="$(yq -r '.build.port // 3000' "$CFG")"
+containerPort="${CONTAINER_PORT:-$containerPort_from_yaml}"
+
 ns="$project"
 repository="$serviceName"
-
-containerPort="${CONTAINER_PORT:-3000}"
 
 # Harbor API/Secret 인증 정보 (필수)
 : "${HARBOR_USERNAME:?환경변수 HARBOR_USERNAME 필요 (robot 계정 권장)}"
@@ -105,7 +110,7 @@ fi
 # 2) namespace 멱등 생성
 kubectl create namespace "$ns" --dry-run=client -o yaml | kubectl apply -f -
 
-# 3) imagePullSecret 멱등 apply (삭제/재생성 X)
+# 3) imagePullSecret 멱등 apply
 kubectl -n "$ns" create secret docker-registry harbor-pull \
   --docker-server="$registry" \
   --docker-username="$HARBOR_USERNAME" \
@@ -113,22 +118,30 @@ kubectl -n "$ns" create secret docker-registry harbor-pull \
   --docker-email="nodejsdeveloper@kakao.com" \
   --dry-run=client -o yaml | kubectl apply -f -
 
-# 4) 최신 tag 조회 (Harbor 상태가 변하면 바뀌는 건 의도된 동작)
+# 4) ✅ 최신 tag 조회 (Harbor 상태가 변하면 바뀌는 건 의도된 동작 유지)
 repoEnc="$(python3 - <<PY
 import urllib.parse
 print(urllib.parse.quote("${repository}", safe=""))
 PY
 )"
 
+echo "🔎 Harbor 최신 태그 조회: ${registry}/${project}/${repository} (page_size=${PAGE_SIZE})"
+
 artifacts_json="$(
   curl -fsS -u "${HARBOR_USERNAME}:${HARBOR_PASSWORD}" \
-    "https://${registry}/api/v2.0/projects/${project}/repositories/${repoEnc}/artifacts?with_tag=true&page_size=1&sort=-push_time"
+    "https://${registry}/api/v2.0/projects/${project}/repositories/${repoEnc}/artifacts?with_tag=true&page_size=${PAGE_SIZE}&sort=-push_time"
 )"
 
-latest_tag="$(echo "$artifacts_json" | jq -r '.[0].tags[0].name // empty')"
+# tags[0]가 항상 최신이 아닐 수 있으니, "tag가 존재하는 아티팩트 중 첫번째"에서 첫 tag를 고르는 방식
+latest_tag="$(echo "$artifacts_json" | jq -r '
+  map(select(.tags != null and (.tags|length)>0))       # tags 있는 것만
+  | .[0].tags[0].name // empty
+')"
+
 if [[ -z "$latest_tag" ]]; then
   echo "❌ 최신 tag 조회 실패 (tags 없음/권한/API 응답 확인 필요)"
-  echo "$artifacts_json" | jq .
+  echo "---- Harbor 응답 일부 ----"
+  echo "$artifacts_json" | jq '.[0] // .'
   exit 1
 fi
 

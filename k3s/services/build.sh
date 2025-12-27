@@ -1,85 +1,80 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SERVICE_NAME="${1:-}"
+INPUT="${1:-}"
 
-if [[ -z "$SERVICE_NAME" ]]; then
-  echo "❌ 서비스 이름을 입력하세요"
+if [[ -z "$INPUT" ]]; then
+  echo "❌ 서비스 이름 또는 yaml 파일을 입력하세요"
   echo "예: ./scripts/build.sh hello-world"
   exit 1
 fi
 
-SERVICE_FILE="${SERVICE_NAME}.yaml"
-if [[ ! -f "$SERVICE_FILE" ]]; then
-  echo "❌ 서비스 설정 파일이 없습니다: $SERVICE_FILE"
+resolve_cfg() {
+  [[ -f "$1" ]] && echo "$1" && return
+  [[ -f "${1}.yaml" ]] && echo "${1}.yaml" && return
+  [[ -f "services/${1}.yaml" ]] && echo "services/${1}.yaml" && return
+  echo "❌ config 파일을 찾지 못했습니다: $1" >&2
   exit 1
-fi
+}
 
-need_cmd() {
+CFG="$(resolve_cfg "$INPUT")"
+
+need() {
   command -v "$1" >/dev/null 2>&1 || {
-    echo "❌ 필요 명령어가 없습니다: $1"
+    echo "❌ 필요 명령어 없음: $1"
     exit 1
   }
 }
 
-need_cmd yq
-need_cmd git
-need_cmd docker
-need_cmd mktemp
+need yq
+need git
+need docker
+need mktemp
 
-# -----------------------------
-# Docker login 환경변수 체크
-# -----------------------------
-: "${HARBOR_REGISTRY:?❌ HARBOR_REGISTRY 환경변수가 필요합니다}"
-: "${HARBOR_USERNAME:?❌ HARBOR_USERNAME 환경변수가 필요합니다}"
-: "${HARBOR_PASSWORD:?❌ HARBOR_PASSWORD 환경변수가 필요합니다}"
+: "${HARBOR_USERNAME:?❌ HARBOR_USERNAME 필요}"
+: "${HARBOR_PASSWORD:?❌ HARBOR_PASSWORD 필요}"
 
-echo "🔐 Docker login: $HARBOR_REGISTRY"
+serviceName="$(yq -r '.serviceName' "$CFG")"
+repo="$(yq -r '.git.repo' "$CFG")"
+branch="$(yq -r '.git.branch // "main"' "$CFG")"
 
-if ! docker info 2>/dev/null | grep -q "$HARBOR_REGISTRY"; then
-  echo "$HARBOR_PASSWORD" | docker login "$HARBOR_REGISTRY" \
-    -u "$HARBOR_USERNAME" \
-    --password-stdin
-else
-  echo "ℹ️ 이미 로그인 되어 있습니다"
-fi
+contextDir="$(yq -r '.build.contextDir' "$CFG")"
+dockerfile="$(yq -r '.build.dockerfile // "Dockerfile"' "$CFG")"
 
-echo "📦 서비스 빌드 시작: $SERVICE_NAME"
-
-REPO="$(yq -r '.git.repo' "$SERVICE_FILE")"
-BRANCH="$(yq -r '.git.branch // "main"' "$SERVICE_FILE")"
-
-CONTEXT_DIR="$(yq -r '.build.contextDir' "$SERVICE_FILE")"
-DOCKERFILE="$(yq -r '.build.dockerfile // "Dockerfile"' "$SERVICE_FILE")"
-
-REGISTRY="$(yq -r '.image.registry' "$SERVICE_FILE")"
-NAMESPACE="$(yq -r '.image.namespace // "library"' "$SERVICE_FILE")"
-TAG_RAW="$(yq -r '.image.tag // ""' "$SERVICE_FILE")"
+registry="$(yq -r '.image.registry' "$CFG")"
+namespace="$(yq -r '.image.namespace' "$CFG")"
+tagMode="$(yq -r '.image.tag // "auto"' "$CFG")"
 
 WORKDIR="$(mktemp -d)"
-cleanup() { rm -rf "$WORKDIR"; }
-trap cleanup EXIT
+trap 'rm -rf "$WORKDIR"' EXIT
 
-echo "📥 Repo clone: $REPO (branch: $BRANCH)"
-git clone -b "$BRANCH" "$REPO" "$WORKDIR" >/dev/null
+echo "🔐 Docker login: $registry"
+echo "$HARBOR_PASSWORD" | docker login "$registry" \
+  -u "$HARBOR_USERNAME" \
+  --password-stdin
+
+echo "📥 Clone: $repo ($branch)"
+git clone -b "$branch" "$repo" "$WORKDIR" >/dev/null
 
 GIT_SHA="$(git -C "$WORKDIR" rev-parse --short HEAD)"
 
-TAG="$TAG_RAW"
-if [[ -z "$TAG" || "$TAG" == "auto" || "$TAG" == "gitsha" ]]; then
-  TAG="$GIT_SHA"
-fi
+cd "$WORKDIR/$contextDir"
+[[ -d . ]] || { echo "❌ contextDir 없음"; exit 1; }
 
-IMAGE="${REGISTRY}/${NAMESPACE}/${SERVICE_NAME}:${TAG}"
-
-echo "🔖 Image: $IMAGE"
-
-cd "$WORKDIR/$CONTEXT_DIR"
+IMAGE_BASE="${registry}/${namespace}/${serviceName}"
+IMAGE_SHA="${IMAGE_BASE}:${GIT_SHA}"
+IMAGE_PROD="${IMAGE_BASE}:prod"
 
 echo "🐳 Docker build"
-docker build -f "$DOCKERFILE" -t "$IMAGE" .
+docker build -f "$dockerfile" -t "$IMAGE_SHA" .
 
-echo "🚀 Docker push"
-docker push "$IMAGE"
+echo "🔖 Tag: prod"
+docker tag "$IMAGE_SHA" "$IMAGE_PROD"
 
-echo "✅ 완료"
+echo "🚀 Push"
+docker push "$IMAGE_SHA"
+docker push "$IMAGE_PROD"
+
+echo "✅ build 완료"
+echo "  - $IMAGE_SHA"
+echo "  - $IMAGE_PROD"
