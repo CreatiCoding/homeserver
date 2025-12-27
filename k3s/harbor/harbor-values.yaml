@@ -14,7 +14,7 @@ expose:
     secret:
       secretName: harbor-tls
 
-harborAdminPassword: ""
+harborAdminPassword: "${HARBOR_ADMIN_PASSWORD}"
 
 persistence:
   enabled: true
