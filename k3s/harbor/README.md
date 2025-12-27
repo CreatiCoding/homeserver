@@ -13,7 +13,10 @@ kubectl create ns harbor
 ## 설치
 
 ```
-helm install harbor harbor/harbor -n harbor -f harbor-values.yaml
+envsubst < harbor-values.yaml | \
+helm install harbor harbor/harbor \
+  -n harbor \
+  -f -
 ```
 
 ## 상태 확인
