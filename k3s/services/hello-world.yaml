@@ -1,0 +1,17 @@
+serviceName: hello-world
+
+git:
+  repo: https://github.com/creaticoding/homeserver
+  branch: main
+
+build:
+  contextDir: servers/hello-world
+  dockerfile: Dockerfile
+
+image:
+  registry: harbor.creco.dev
+  namespace: services
+  tag: auto
+
+domain:
+  host: hello-world.creco.dev

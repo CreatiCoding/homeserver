@@ -8,13 +8,18 @@ helm repo update
 kubectl create ns harbor
 ```
 
-## values (harbor-values.yaml)에 시크릿 추가
-
 ## 설치
 
 ```
 envsubst < harbor-values.yaml | \
 helm install harbor harbor/harbor \
+  -n harbor \
+  -f -
+```
+
+```
+envsubst < harbor-values.yaml | \
+helm upgrade --install harbor harbor/harbor \
   -n harbor \
   -f -
 ```
