@@ -13,4 +13,4 @@ spec:
         - name: headscale
           port: 80
   tls:
-    certResolver: letsencrypt
+    secretName: headscale-tls
