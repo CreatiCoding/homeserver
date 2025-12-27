@@ -33,12 +33,12 @@ containerPort="${CONTAINER_PORT:-3000}"
 # --------------------------------------------------
 # Harbor 인증 정보 (필수)
 # --------------------------------------------------
-: "${HARBOR_USER:?환경변수 HARBOR_USER 필요 (robot 계정 권장)}"
-: "${HARBOR_PASS:?환경변수 HARBOR_PASS 필요}"
+: "${HARBOR_USERNAME:?환경변수 HARBOR_USERNAME 필요 (robot 계정 권장)}"
+: "${HARBOR_PASSWORD:?환경변수 HARBOR_PASSWORD 필요}"
 
 echo
 echo "🔐 Harbor 로그인 시도: $registry"
-echo "$HARBOR_PASS" | docker login "$registry" -u "$HARBOR_USER" --password-stdin
+echo "$HARBOR_PASSWORD" | docker login "$registry" -u "$HARBOR_USERNAME" --password-stdin
 echo "✅ docker login 성공"
 
 # --------------------------------------------------
@@ -53,8 +53,8 @@ kubectl -n "$ns" delete secret harbor-pull --ignore-not-found
 
 kubectl -n "$ns" create secret docker-registry harbor-pull \
   --docker-server="$registry" \
-  --docker-username="$HARBOR_USER" \
-  --docker-password="$HARBOR_PASS" \
+  --docker-username="$HARBOR_USERNAME" \
+  --docker-password="$HARBOR_PASSWORD" \
   --docker-email="nodejsdeveloper@kakao.com"
 
 echo "✅ imagePullSecret 준비 완료"
@@ -72,7 +72,7 @@ PY
 )"
 
 artifacts_json="$(
-  curl -fsS -u "${HARBOR_USER}:${HARBOR_PASS}" \
+  curl -fsS -u "${HARBOR_USERNAME}:${HARBOR_PASSWORD}" \
     "https://${registry}/api/v2.0/projects/${project}/repositories/${repoEnc}/artifacts?with_tag=true&page_size=1&sort=-push_time"
 )"
 
