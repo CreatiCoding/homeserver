@@ -16,7 +16,7 @@ spec:
       containers:
         - name: headscale
           image: headscale/headscale:latest
-          args: ["serve"]
+          args: ["serve", "-c", "/etc/headscale/config.yaml"]
           ports:
             - containerPort: 8080
           volumeMounts:
