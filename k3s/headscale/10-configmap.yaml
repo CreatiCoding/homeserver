@@ -8,20 +8,29 @@ data:
     server_url: https://headscale.creco.dev
     listen_addr: 0.0.0.0:8080
 
-    private_key_path: /var/lib/headscale/private.key
+    # Tailscale v2 protocol (필수)
     noise:
       private_key_path: /var/lib/headscale/noise_private.key
 
-    # ✅ IMPORTANT: prefixes (NOT ip_prefixes)
+    # tailnet 주소 풀 (필수)
     prefixes:
       v4: 100.64.0.0/10
-      # v6: fd7a:115c:a1e0::/48   # 필요하면 나중에
+      # v6: fd7a:115c:a1e0::/48
 
-    db_type: sqlite
-    db_path: /var/lib/headscale/db.sqlite
+    # ✅ DB 설정 (최신 스키마)
+    database:
+      type: sqlite
+      sqlite:
+        path: /var/lib/headscale/db.sqlite
 
+    # DNS는 일단 최소로 (나중에 MagicDNS 원할 때 확장)
     dns:
-      override_local_dns: false
+      magic_dns: false
+      base_domain: creco.internal
+      nameservers:
+        global:
+          - 1.1.1.1
+          - 8.8.8.8
 
     log:
       level: info
