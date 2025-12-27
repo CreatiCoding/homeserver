@@ -8,27 +8,20 @@ data:
     server_url: https://headscale.creco.dev
     listen_addr: 0.0.0.0:8080
 
-    # Headscale will store keys + sqlite DB here
     private_key_path: /var/lib/headscale/private.key
-
-    # REQUIRED (Tailscale v2 protocol)
     noise:
       private_key_path: /var/lib/headscale/noise_private.key
 
-    ip_prefixes:
-      - 100.64.0.0/10
+    # ✅ IMPORTANT: prefixes (NOT ip_prefixes)
+    prefixes:
+      v4: 100.64.0.0/10
+      # v6: fd7a:115c:a1e0::/48   # 필요하면 나중에
 
     db_type: sqlite
     db_path: /var/lib/headscale/db.sqlite
 
-    # NEW dns schema (dns_config is removed)
     dns:
       override_local_dns: false
-      # override_local_dns를 true로 바꾸고 싶으면 아래 nameservers.global도 반드시 채우세요.
-      # nameservers:
-      #   global:
-      #     - 1.1.1.1
-      #     - 8.8.8.8
 
     log:
       level: info
