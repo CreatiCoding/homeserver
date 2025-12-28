@@ -1,0 +1,38 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: private-allowlist
+  namespace: demo
+spec:
+  ipAllowList:
+    sourceRange:
+      - 192.168.0.0/16
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: private-hide-403-as-404
+  namespace: demo
+spec:
+  errors:
+    status:
+      - "403"
+    statusRewrites:
+      "403": "404"
+    query: /404.html
+    service:
+      name: error-pages
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: private-chain
+  namespace: demo
+spec:
+  chain:
+    middlewares:
+      - name: private-allowlist
+      - name: private-hide-403-as-404
