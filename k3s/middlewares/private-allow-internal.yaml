@@ -1,0 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: private-allow-internal
+  namespace: traefik-private
+spec:
+  ipAllowList:
+    sourceRange:
+      - 100.64.0.0/10 # headscale/tailscale (환경에 맞게)
+      - 192.168.0.0/16 # home LAN (환경에 맞게)
