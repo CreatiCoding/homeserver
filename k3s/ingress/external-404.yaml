@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-404
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-404
+  template:
+    metadata:
+      labels:
+        app: external-404
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat >/usr/share/nginx/html/index.html <<'EOF'
+              <!doctype html>
+              <html><head><meta charset="utf-8"><title>404</title></head>
+              <body style="font-family:sans-serif;padding:40px">
+                <h1>404 Not Found</h1>
+                <p>이 서비스는 외부에서 접근할 수 없습니다.</p>
+              </body></html>
+              EOF
+              nginx -g 'daemon off;'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-404
+  namespace: kube-system
+spec:
+  selector:
+    app: external-404
+  ports:
+    - port: 80
+      targetPort: 80
