@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-private
+  namespace: demo
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: demo-private-chain@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - hello.internal.creco.dev
+      secretName: hello-internal-creco-dev-tls
+  rules:
+    - host: hello.internal.creco.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello
+                port:
+                  number: 80
