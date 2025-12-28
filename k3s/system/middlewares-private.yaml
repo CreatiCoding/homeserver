@@ -20,7 +20,7 @@ spec:
     status:
       - "403"
     statusRewrites:
-      "403": "404"
+      403: 404
     query: /404.html
     service:
       name: error-pages
