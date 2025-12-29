@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wireguard
+  namespace: infra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wireguard
+  template:
+    metadata:
+      labels:
+        app: wireguard
+    spec:
+      hostNetwork: true
+      containers:
+        - name: wireguard
+          image: linuxserver/wireguard
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - SYS_MODULE
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: SERVERURL
+              value: "creaticoding.iptime.org"
+            - name: SERVERPORT
+              value: "51820"
+            - name: PEERS
+              value: "1"
+            - name: ALLOWEDIPS
+              value: "0.0.0.0/0"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          hostPath:
+            path: /var/lib/wireguard
+            type: DirectoryOrCreate
