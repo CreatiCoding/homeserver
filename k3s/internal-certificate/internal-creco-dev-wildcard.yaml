@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-creco-dev-wildcard
+  namespace: infra
+spec:
+  secretName: internal-creco-dev-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.internal.creco.dev"
+    - "internal.creco.dev"
