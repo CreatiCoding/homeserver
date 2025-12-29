@@ -1,21 +1,36 @@
 # VPN Full 터널링
 
-Step 1. WireGuard 키 생성 (서버)
+## 설치
+
+```
+sudo apt install wireguard
+sudo wg-quick up wg0
+```
+
+## 키 생성
+
+```
 wg genkey | tee server.key | wg pubkey > server.pub
+wg genkey | tee client.key | wg pubkey > client.pub
+```
 
-Step 3. 서버에서 IP Forwarding 활성화
-echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+## 서버 파일 설정
 
-영구 적용:
+`/etc/wireguard/wg0.conf`
+
+## VPN 서버를 인터넷 출구로 만들기 위한 최소·강제 초기화 작업
+
+```
 sudo sysctl -w net.ipv4.ip_forward=1
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -F FORWARD
 
-Step 4. NAT 설정 (가장 중요)
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -o enp4s0 -j MASQUERADE
+```
 
-eth0 → 서버의 실제 인터넷 인터페이스로 변경
+## 상태 확인하기
 
-이게 없으면:
-
-VPN 연결은 되는데
-
-인터넷이 안 됩니다
+```
+sudo wg show
+```
