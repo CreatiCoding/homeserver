@@ -1,4 +1,4 @@
-externalURL: http://harbor.internal.creco.dev
+externalURL: https://harbor.internal.creco.dev
 
 expose:
   type: ingress
@@ -6,9 +6,13 @@ expose:
     className: traefik
     hosts:
       core: harbor.internal.creco.dev
-    annotations: {}
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
   tls:
-    enabled: false
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
 
 harborAdminPassword: "${HARBOR_ADMIN_PASSWORD}"
 
