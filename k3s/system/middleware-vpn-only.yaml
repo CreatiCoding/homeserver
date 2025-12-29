@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vpn-only
+  namespace: live # ingress가 있는 네임스페이스에 맞추세요
+spec:
+  ipAllowList:
+    sourceRange:
+      - 10.100.0.0/24 # WireGuard VPN 대역
+      # 필요하면 추가
+      # - 192.168.0.0/24   # 집 내부 LAN도 허용할 경우
