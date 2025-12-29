@@ -7,4 +7,3 @@ spec:
   ipAllowList:
     sourceRange:
       - 10.100.0.0/24 # VPN 클라이언트 대역
-      - 10.42.0.0/16 # k3s Pod CIDR (핵심)
