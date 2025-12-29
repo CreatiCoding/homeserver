@@ -1,10 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: internal-creco-dev-wildcard
-  namespace: infra
+  name: harbor-internal-creco-dev-wildcard
+  namespace: harbor
 spec:
-  secretName: internal-creco-dev-tls
+  secretName: harbor-internal-creco-dev-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
