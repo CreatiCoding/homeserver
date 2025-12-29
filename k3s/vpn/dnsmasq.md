@@ -81,6 +81,7 @@ bind-interfaces
 # 내부 도메인 → 자기 자신
 address=/internal.creco.dev/192.168.0.64
 address=/hello.internal.creco.dev/192.168.0.64
+address=/.internal.creco.dev/192.168.0.64
 
 # 내부 도메인 외에는 외부 DNS로 포워딩
 server=1.1.1.1
