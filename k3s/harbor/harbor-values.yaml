@@ -12,7 +12,7 @@ expose:
     enabled: true
     certSource: secret
     secret:
-      secretName: harbor-internal-creco-dev-tls
+      secretName: harbor-tls
 
 harborAdminPassword: "${HARBOR_ADMIN_PASSWORD}"
 
