@@ -2,7 +2,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: private-allowlist
-  namespace: infra
+  namespace: live
 spec:
   ipAllowList:
     sourceRange:
@@ -13,7 +13,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: private-hide-403-as-404
-  namespace: infra
+  namespace: live
 spec:
   errors:
     status:
@@ -29,7 +29,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: private-chain
-  namespace: infra
+  namespace: live
 spec:
   chain:
     middlewares:
